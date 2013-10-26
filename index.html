@@ -40,7 +40,7 @@
         left: 8px;
       }
       .session:hover {
-        z-index: 1;
+        z-index: 999;
         background: #eef;
       }
       .day {
@@ -111,6 +111,7 @@
               if (c) {
                 sEl.style.left = (c * 20 % 70) + 20 + 'px';
                 sEl.style.width = '160px';
+                sEl.style.zIndex = c;
               }
               seen.push([start,end]);
               sEl.style.top = start * 2 + 'px';
@@ -128,10 +129,10 @@
       function collides(seen, start, end) {
         var num = 0;
         for (var i=0; i<seen.length; i++) {
-          if ((start <= seen[i][0] && end > seen[i][0]) ||
-              (start <= seen[i][1] && end > seen[i][1]) ||
-              (seen[i][0] < start && seen[i][0] > start) ||
-              (seen[i][0] < end && seen[i][1] > end)) {
+          if ((start <= seen[i][0] && end >= seen[i][0]) ||
+              (start <= seen[i][1] && end >= seen[i][1]) ||
+              (seen[i][0] <= start && seen[i][1] >= start) ||
+              (seen[i][0] <= end && seen[i][1] >= end)) {
             num++;
           }
         }
