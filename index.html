@@ -65,7 +65,10 @@
     <div id="container"></div>
     <script>
 
-      document.body.addEventListener('click', function(e) {
+      document.body.addEventListener('click', highlight);
+      document.body.addEventListener('touchstart', highlight);
+
+      function highlight(e) {
         if (e.target.classList.contains('session')) {
           var tapped = document.querySelectorAll('.tapped');
           for (var i=0;i<tapped.length;i++) {
@@ -73,7 +76,8 @@
           }
           e.target.classList.add('tapped');
         }
-      });
+      }
+
 
       function makeEl(s, text, attr) {
         var a = s.split('.');
