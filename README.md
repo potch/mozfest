@@ -1,0 +1,1 @@
+Two alternate versions of the Mozilla Festival 2013 schedule, both hosted in the gh-pages branch. The `/now` folder contains a mobile friendly version that indicates what sessions are running and which ones are soon to start.
