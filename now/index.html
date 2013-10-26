@@ -30,6 +30,16 @@
         background: #eef;
         border: 1px solid #00c;
       }
+      h4 {
+        margin: 0;
+        padding: .4rem 1rem;
+        background: #eef;
+        border: 1px solid #00c;
+      }
+      .inprogress,
+      .inprogress h3 {
+        background: #eec;
+      }
       .details {
         padding: 1rem;
         display: none;
@@ -87,18 +97,30 @@
         var evs = getEventsByFloor();
         window.floors = evs;
         var now = new Date();
+        now.setHours(13);
         var nowTime = now.getHours() * 100 + now.getMinutes();
         for (var i=9; i>=0; i--) {
           var floor = evs[i];
           floor.sort(function(a, b) {
-            return a.time - b.time;
+            return b.time - a.time;
           });
           if (floor.length) {
             el.appendChild(makeEl('h2', i ? 'Floor ' + i : 'General'));
+            el.appendChild(makeEl('h4.soon', 'starting soon'));
           }
+          var inProgress = false;
           floor.forEach(function(session) {
             if (session.time - nowTime < 100 && session.timeEnd > nowTime) {
-              var sEl = makeEl('div.session');
+              var classes = '.session';
+              if (session.time < nowTime) {
+                classes += '.inprogress';
+                if (!inProgress) {
+                  el.appendChild(makeEl('h4.inprogress', 'in progress'));
+                  inProgress = true;
+                }
+              }
+              var sEl = makeEl('div' + classes);
+
               sEl.appendChild(makeEl('h3.title', session.startTime + ' - ' + session.name));
               var details = makeEl('div.details');
               if (session.format) {
