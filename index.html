@@ -62,7 +62,7 @@
   <body>
     <h1>MozFest "Everything At Once" Schedule (<a href="http://schedule.mozillafestival.org/#!/schedule">original</a>)</h1>
     <p>Hover/tap events to bring them to the foreground</p>
-    <div id="container"></div>
+    <div id="container">Loading&hellip;</div>
     <script>
 
       document.body.addEventListener('touchstart', highlight);
@@ -105,6 +105,7 @@
 
       function drawSchedule() {
         var el = document.querySelector('#container');
+        el.innerHTML = '';
         var tracks = ['all','badges','connect','data','games','journalism','mobile','physical','privacy','science','teachtheweb','teachtheweb_scrum'];
 
         var days = {'5': 'Saturday', '6': 'Sunday'};

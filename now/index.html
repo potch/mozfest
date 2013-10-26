@@ -44,8 +44,10 @@
   </head>
   <body>
     <h1>Mozilla Festival NOW!</h1>
-    <div id="container"></div>
+    <div id="container"><h2>Loading&hellip;</h2></div>
     <script>
+
+      var today = 5;
 
       function makeEl(s, text, attr) {
         var a = s.split('.');
@@ -81,6 +83,7 @@
       });
 
       function drawSchedule() {
+        el.innerHTML = '';
         var evs = getEventsByFloor();
         window.floors = evs;
         var now = new Date();
@@ -135,7 +138,6 @@
       };
 
       function getEventsByFloor() {
-        var today = (new Date()).getDay();
         var floors = [];
         for (var i=0; i<10; i++) {
           floors.push([]);
