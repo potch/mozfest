@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <title>What's Going on at MozFest</title>
+    <style>
+      * {
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: sans-serif;
+        margin: 0;
+      }
+      h1 {
+        padding: 0 1rem;
+        color: #db000d;
+      }
+      h2 {
+        padding: 1rem;
+        border: 1px solid #080;
+        background: #efe;
+        margin: 0;
+      }
+      h3 {
+        margin: 0;
+        cursor: pointer;
+        padding: 1rem;
+        background: #eef;
+        border: 1px solid #00c;
+      }
+      .details {
+        padding: 1rem;
+        display: none;
+      }
+      .details div {
+        margin: 1rem 0;
+      }
+      .title.open + .details {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Mozilla Festival NOW!</h1>
+    <div id="container"></div>
+    <script>
+
+      function makeEl(s, text, attr) {
+        var a = s.split('.');
+        var tag = a.shift();
+        var el = document.createElement(tag);
+        el.className = a.join(' ');
+        if (text) el.textContent = text;
+        if (attr) {
+            for (var k in attr) {
+                el.setAttribute(k, attr[k]);
+            }
+        }
+        return el;
+      }
+
+      var xhr = new XMLHttpRequest();
+      function reqListener () {
+        window.schedule = JSON.parse(this.response).schedule;
+        drawSchedule();
+      };
+
+      var oReq = new XMLHttpRequest();
+      oReq.onload = reqListener;
+      oReq.open("get", "http://mozfest-data.paas.allizom.org/schedule", true);
+      oReq.send();
+
+      var el = document.querySelector('#container');
+
+      document.body.addEventListener('click', function (e) {
+        if (e.target.classList.contains('title')) {
+          e.target.classList.toggle('open');
+        }
+      });
+
+      function drawSchedule() {
+        var evs = getEventsByFloor();
+        window.floors = evs;
+        var now = new Date();
+        var nowTime = now.getHours() * 100 + now.getMinutes();
+        for (var i=9; i>=0; i--) {
+          var floor = evs[i];
+          floor.sort(function(a, b) {
+            return a.time - b.time;
+          });
+          if (floor.length) {
+            el.appendChild(makeEl('h2', i ? 'Floor ' + i : 'General'));
+          }
+          floor.forEach(function(session) {
+            if (session.time - nowTime < 100 && session.timeEnd > nowTime) {
+              var sEl = makeEl('div.session');
+              sEl.appendChild(makeEl('h3.title', session.startTime + ' - ' + session.name));
+              var details = makeEl('div.details');
+              if (session.format) {
+                details.appendChild(makeEl('div', session.id + ' - ' + session.format));
+              } else {
+                details.appendChild(makeEl('div', session.id));
+              }
+              details.appendChild(makeEl('div', [session.startTime,session.endTime||''].join('-')));
+              if (session.location) {
+                details.appendChild(makeEl('div.location', 'Room ' + session.location));
+              }
+              if (session.description) {
+                details.innerHTML += session.description;
+              }
+              sEl.appendChild(details);
+
+              el.appendChild(sEl);
+            }
+          });
+        }
+      }
+
+      var floorDict = {
+        'games': 9,
+        'badges': 7,
+        'privacy': 2,
+        'teachtheweb': 6,
+        'connect': 6,
+        'science': 2,
+        'mobile': 1,
+        'data': 8,
+        'journalism': 8,
+        'teachtheweb_scrum': 6,
+        'plenary': 0,
+        'all': 0,
+        'physical': 1
+      };
+
+      function getEventsByFloor() {
+        var today = (new Date()).getDay();
+        var floors = [];
+        for (var i=0; i<10; i++) {
+          floors.push([]);
+        }
+        var tracks = ['all','badges','connect','data','games','journalism','mobile','physical','privacy','science','teachtheweb','teachtheweb_scrum'];
+        var iter = tracks.map(function (t) {
+          return t + '-' + today;
+        });
+        iter.forEach(function (slug) {
+          var track = schedule[slug];
+          for (s in track) {
+            var session = track[s];
+            var floor = floorDict[session.id] || 0;
+            track[s].time = parseInt(session.startTime.replace(':',''),10);
+            track[s].timeEnd = session.endTime ? parseInt(session.endTime.replace(':',''),10) : session.time + 100;
+            floors[floor].push(session);
+          }
+        });
+        return floors;
+      }
+
+    </script>
+  </body>
+</html>

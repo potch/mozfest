@@ -100,7 +100,7 @@
 
       var oReq = new XMLHttpRequest();
       oReq.onload = reqListener;
-      oReq.open("get", "schedule.json", true);
+      oReq.open("get", "http://mozfest-data.paas.allizom.org/schedule", true);
       oReq.send();
 
       function drawSchedule() {
