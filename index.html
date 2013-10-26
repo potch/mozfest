@@ -91,7 +91,7 @@
 
       var xhr = new XMLHttpRequest();
       function reqListener () {
-        window.schedule = JSON.parse(this.response);
+        window.schedule = JSON.parse(this.response).schedule;
         drawSchedule();
       };
 
