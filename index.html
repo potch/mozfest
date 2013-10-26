@@ -39,8 +39,12 @@
         padding: 1em;
         left: 8px;
       }
-      .session:hover {
-        z-index: 999;
+      .session div {
+        margin: .5em 0;
+        font-size: .8em;
+      }
+      .session:hover, .session.tapped {
+        z-index: 999 !important;
         background: #eef;
       }
       .day {
@@ -57,9 +61,19 @@
   </head>
   <body>
     <h1>MozFest "Everything At Once" Schedule (<a href="http://schedule.mozillafestival.org/#!/schedule">original</a>)</h1>
-    <p>Hover events to bring them to the foreground</p>
+    <p>Hover/tap events to bring them to the foreground</p>
     <div id="container"></div>
     <script>
+
+      document.body.addEventListener('click', function(e) {
+        if (e.target.classList.contains('session')) {
+          var tapped = document.querySelectorAll('.tapped');
+          for (var i=0;i<tapped.length;i++) {
+            tapped[i].classList.remove('tapped');
+          }
+          e.target.classList.add('tapped');
+        }
+      });
 
       function makeEl(s, text, attr) {
         var a = s.split('.');
@@ -101,8 +115,14 @@
             track.appendChild(makeEl('h3', t));
             var sessionList = schedule[t+'-'+day];
             var seen = [];
+            var sessions = [];
             for (var s in sessionList) {
-              var sess = sessionList[s];
+              sessions.push(sessionList[s]);
+            }
+            sessions.sort(function(a,b) {
+              return a.startTime > b.startTime ? 1 : -1;
+            });
+            sessions.forEach(function (sess) {
               var sEl = makeEl('div.session');
               sEl.appendChild(makeEl('b', sess.name));
               var start = timeToMins(sess.startTime);
@@ -117,8 +137,9 @@
               sEl.style.top = start * 2 + 'px';
               sEl.style.minHeight = (end - start) * 2 + 'px';
               sEl.appendChild(makeEl('div', [sess.startTime,sess.endTime||''].join('-')))
+              sEl.appendChild(makeEl('div', sess.location));
               track.appendChild(sEl);
-            };
+            });
             dayEl.appendChild(track);
           });
           el.appendChild(h2);
@@ -129,10 +150,12 @@
       function collides(seen, start, end) {
         var num = 0;
         for (var i=0; i<seen.length; i++) {
-          if ((start <= seen[i][0] && end >= seen[i][0]) ||
-              (start <= seen[i][1] && end >= seen[i][1]) ||
-              (seen[i][0] <= start && seen[i][1] >= start) ||
-              (seen[i][0] <= end && seen[i][1] >= end)) {
+          var start2 = seen[i][0];
+          var end2 = seen[i][1];
+          if ((start <= start2 && end >= start2) ||
+              (start <= end2 && end >= end2) ||
+              (start2 <= start && end2 >= start) ||
+              (start2 <= end && end2 >= end)) {
             num++;
           }
         }
